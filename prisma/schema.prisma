@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Клас (1, 2, 3, 4)
+model Grade {
+  id        Int        @id @default(autoincrement())
+  number    Int        @unique // Номер класу (1-4)
+  materials Material[]
+  tests     Test[]
+}
+
+// Навчальні матеріали (теорія)
+model Material {
+  id      Int    @id @default(autoincrement())
+  title   String
+  content String // Текст уроку
+  gradeId Int
+  grade   Grade  @relation(fields: [gradeId], references: [id])
+}
+
+// Тест
+model Test {
+  id        Int        @id @default(autoincrement())
+  title     String
+  gradeId   Int
+  grade     Grade      @relation(fields: [gradeId], references: [id])
+  questions Question[]
+  results   Result[]
+}
+
+// Питання тесту
+model Question {
+  id            Int    @id @default(autoincrement())
+  text          String
+  correctAnswer String
+  options       String // Варіанти відповіді через кому (наприклад: "2,4,5")
+  testId        Int
+  test          Test   @relation(fields: [testId], references: [id])
+}
+
+// Результати проходження
+model Result {
+  id        Int      @id @default(autoincrement())
+  userName  String
+  score     Int // Кількість балів
+  testId    Int
+  test      Test     @relation(fields: [testId], references: [id])
+  createdAt DateTime @default(now())
+}
