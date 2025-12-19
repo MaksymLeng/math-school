@@ -109,16 +109,16 @@ export default function GradeTabs({ materials, tests }: Props) {
                     )}
                 </div>
             )}
-
-            {/* Вкладка: ТЕСТИ */}
             {activeTab === 'tests' && (
-                <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {tests.length > 0 ? (
                         tests.map((test) => (
-                            <div key={test.id} className="flex flex-col gap-4">
-                                <div className="bg-yellow-50 p-6 rounded-2xl border-2 border-yellow-400 shadow-lg text-center">
-                                    <h3 className="font-bold text-xl mb-2 text-yellow-900">{test.title}</h3>
-                                    <p className="text-sm text-yellow-700 mb-4">Перевір свої знання!</p>
+                            <div key={test.id} className="flex flex-col gap-4 h-full">
+                                <div className="bg-yellow-50 p-6 rounded-2xl border-2 border-yellow-400 shadow-lg text-center flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <h3 className="font-bold text-xl mb-2 text-yellow-900">{test.title}</h3>
+                                        <p className="text-sm text-yellow-700 mb-4">Перевір свої знання!</p>
+                                    </div>
                                     <Link
                                         href={`/grade/test/${test.id}`}
                                         className="block w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-3 px-4 rounded-xl transition-transform hover:scale-105 active:scale-95 shadow-md"
@@ -128,35 +128,37 @@ export default function GradeTabs({ materials, tests }: Props) {
                                 </div>
 
                                 {/* Таблиця лідерів */}
-                                <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+                                <div className="bg-white border rounded-xl shadow-sm overflow-hidden flex-shrink-0">
                                     <div className="bg-slate-100 p-3 border-b">
                                         <h4 className="font-bold text-center text-slate-600">🏆 Дошка пошани</h4>
                                     </div>
                                     {test.results.length === 0 ? (
                                         <p className="p-4 text-center text-sm text-gray-400">Ще ніхто не проходив</p>
                                     ) : (
-                                        <table className="w-full text-sm">
-                                            <thead>
-                                            <tr className="text-left text-gray-400 bg-gray-50">
-                                                <th className="p-2 font-medium">Ім'я</th>
-                                                <th className="p-2 font-medium text-right">Бали</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {test.results.map((res, idx) => (
-                                                <tr key={res.id} className="border-t last:border-0 hover:bg-slate-50">
-                                                    <td className="p-2 flex items-center gap-2">
-                                                            <span className={`w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold text-white 
-                                                                ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-orange-400' : 'bg-slate-200 text-slate-500'}`}>
-                                                                {idx + 1}
-                                                            </span>
-                                                        <span className="truncate max-w-[120px] font-medium text-slate-700">{res.user?.name || 'Анонім'}</span>
-                                                    </td>
-                                                    <td className="p-2 text-right font-bold text-blue-600">{res.score}</td>
+                                        <div className="max-h-40 overflow-y-auto"> {/* Обмеження висоти таблиці, якщо багато результатів */}
+                                            <table className="w-full text-sm">
+                                                <thead>
+                                                <tr className="text-left text-gray-400 bg-gray-50 sticky top-0">
+                                                    <th className="p-2 font-medium bg-gray-50">Ім'я</th>
+                                                    <th className="p-2 font-medium text-right bg-gray-50">Бали</th>
                                                 </tr>
-                                            ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                {test.results.map((res, idx) => (
+                                                    <tr key={res.id} className="border-t last:border-0 hover:bg-slate-50">
+                                                        <td className="p-2 flex items-center gap-2">
+                                                                <span className={`w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold text-white 
+                                                                    ${idx === 0 ? 'bg-yellow-400' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-orange-400' : 'bg-slate-200 text-slate-500'}`}>
+                                                                    {idx + 1}
+                                                                </span>
+                                                            <span className="truncate max-w-[120px] font-medium text-slate-700">{res.user?.name || 'Анонім'}</span>
+                                                        </td>
+                                                        <td className="p-2 text-right font-bold text-blue-600">{res.score}</td>
+                                                    </tr>
+                                                ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     )}
                                 </div>
                             </div>
