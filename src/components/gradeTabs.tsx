@@ -26,7 +26,6 @@ export default function GradeTabs({ materials, tests }: Props) {
 
     return (
         <div>
-            {/* --- Переключатель Вкладок --- */}
             <div className="flex justify-center mb-8">
                 <div className="bg-slate-100 p-1 rounded-full inline-flex border border-slate-200">
                     <button
@@ -47,12 +46,11 @@ export default function GradeTabs({ materials, tests }: Props) {
                                 : 'text-slate-500 hover:text-slate-700'
                         }`}
                     >
-                        🚀 Тесты
+                        🚀 Тести
                     </button>
                 </div>
             </div>
 
-            {/* --- Контент: МАТЕРИАЛЫ --- */}
             {activeTab === 'materials' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {materials.length > 0 ? (
@@ -64,13 +62,12 @@ export default function GradeTabs({ materials, tests }: Props) {
                         ))
                     ) : (
                         <div className="text-center py-12 text-slate-400">
-                            <p>Материалов пока нет 📚</p>
+                            <p>Матеріалів поки немає 📚</p>
                         </div>
                     )}
                 </div>
             )}
 
-            {/* --- Контент: ТЕСТЫ --- */}
             {activeTab === 'tests' && (
                 <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {tests.length > 0 ? (

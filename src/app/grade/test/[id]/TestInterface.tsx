@@ -46,7 +46,6 @@ export default function TestInterface({ test }: Props) {
         setScore(finalScore);
         setIsFinished(true);
 
-        // Автоматичне збереження, якщо користувач увійшов
         if (session?.user) {
             setIsSaving(true);
             // @ts-ignore
