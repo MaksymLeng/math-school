@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { saveTestResult } from '@/app/actions';
+import { saveTestResult } from '@/app/actions'; // Переконайтесь, що шлях вірний
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 type Props = {
     test: {
@@ -20,11 +22,11 @@ type Props = {
 
 export default function TestInterface({ test }: Props) {
     const router = useRouter();
+    const { data: session } = useSession(); // Отримуємо користувача
 
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [isFinished, setIsFinished] = useState(false);
     const [score, setScore] = useState(0);
-    const [userName, setUserName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSelect = (questionId: number, value: string) => {
@@ -32,8 +34,7 @@ export default function TestInterface({ test }: Props) {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
     };
 
-    const finishTest = () => {
-        // Рахуємо бали
+    const finishTest = async () => {
         let correctCount = 0;
         test.questions.forEach(q => {
             if (answers[q.id] === q.correctAnswer) {
@@ -41,22 +42,17 @@ export default function TestInterface({ test }: Props) {
             }
         });
 
-        // Максимум 100 балів (або просто кількість правильних)
-        // Формула: (правильних / всього) * 100
         const finalScore = Math.round((correctCount / test.questions.length) * 100);
         setScore(finalScore);
         setIsFinished(true);
-    };
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!userName.trim()) return;
-
-        setIsSaving(true);
-        await saveTestResult(test.id, score, userName, test.gradeId);
-
-        // Повертаємось на сторінку класу
-        router.push(`/grade/${test.gradeId}`);
+        // Автоматичне збереження, якщо користувач увійшов
+        if (session?.user) {
+            setIsSaving(true);
+            // @ts-ignore
+            await saveTestResult(test.id, finalScore, session.user.id, test.gradeId);
+            setIsSaving(false);
+        }
     };
 
     if (isFinished) {
@@ -65,26 +61,21 @@ export default function TestInterface({ test }: Props) {
                 <h2 className="text-3xl font-bold mb-4 text-slate-800">Тест завершено! 🎉</h2>
                 <div className="text-6xl font-black text-blue-600 mb-6">{score} <span className="text-2xl text-gray-400">балів</span></div>
 
-                <p className="mb-6 text-gray-600">Введи своє ім'я, щоб потрапити в таблицю лідерів:</p>
+                {!session ? (
+                    <div className="bg-yellow-50 p-4 rounded-lg mb-6">
+                        <p className="text-yellow-800 mb-2">Увійди в акаунт, щоб зберегти результат!</p>
+                        <Link href="/api/auth/signin" className="text-blue-600 font-bold underline">Увійти</Link>
+                    </div>
+                ) : (
+                    <p className="text-green-600 font-bold mb-6 text-lg">Результат збережено для {session.user?.name}!</p>
+                )}
 
-                <form onSubmit={handleSave} className="space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Твоє ім'я"
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                        className="w-full p-4 text-center text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none text-gray-700"
-                        required
-                        autoFocus
-                    />
-                    <button
-                        type="submit"
-                        disabled={isSaving}
-                        className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl text-lg transition shadow-lg disabled:bg-gray-300"
-                    >
-                        {isSaving ? 'Збереження...' : '💾 Зберегти результат'}
-                    </button>
-                </form>
+                <button
+                    onClick={() => router.push(`/grade/${test.gradeId}`)}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition"
+                >
+                    Повернутися до уроків
+                </button>
             </div>
         );
     }

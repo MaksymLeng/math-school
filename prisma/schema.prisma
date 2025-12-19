@@ -8,24 +8,31 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-// Клас (1, 2, 3, 4)
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String // Хешований пароль
+  name      String?
+  role      String   @default("student") // student або admin
+  results   Result[]
+  createdAt DateTime @default(now())
+}
+
 model Grade {
   id        Int        @id @default(autoincrement())
-  number    Int        @unique // Номер класу (1-4)
+  number    Int        @unique
   materials Material[]
   tests     Test[]
 }
 
-// Навчальні матеріали (теорія)
 model Material {
   id      Int    @id @default(autoincrement())
   title   String
-  content String // Текст уроку
+  content String
   gradeId Int
   grade   Grade  @relation(fields: [gradeId], references: [id])
 }
 
-// Тест
 model Test {
   id        Int        @id @default(autoincrement())
   title     String
@@ -35,21 +42,23 @@ model Test {
   results   Result[]
 }
 
-// Питання тесту
 model Question {
   id            Int    @id @default(autoincrement())
   text          String
   correctAnswer String
-  options       String // Варіанти відповіді через кому (наприклад: "2,4,5")
+  options       String
   testId        Int
   test          Test   @relation(fields: [testId], references: [id])
 }
 
-// Результати проходження
 model Result {
-  id        Int      @id @default(autoincrement())
-  userName  String
-  score     Int // Кількість балів
+  id    Int @id @default(autoincrement())
+  score Int
+
+  // Зв'язок з користувачем замість userName
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
   testId    Int
   test      Test     @relation(fields: [testId], references: [id])
   createdAt DateTime @default(now())
